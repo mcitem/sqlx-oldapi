@@ -2,6 +2,20 @@ use proc_macro2::Span;
 use std::env;
 use std::path::{Path, PathBuf};
 
+/// https://doc.rust-lang.org/stable/std/option/enum.Option.html#method.is_none_or
+trait OptionIsNoneOr<T> {
+    fn is_none_or(self, f: impl FnOnce(T) -> bool) -> bool;
+}
+
+impl<T> OptionIsNoneOr<T> for Option<T> {
+    fn is_none_or(self, f: impl FnOnce(T) -> bool) -> bool {
+        match self {
+            None => true,
+            Some(x) => f(x),
+        }
+    }
+}
+
 pub(crate) fn resolve_path(path: impl AsRef<Path>, err_span: Span) -> syn::Result<PathBuf> {
     let path = path.as_ref();
 
